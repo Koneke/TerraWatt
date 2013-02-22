@@ -11,6 +11,9 @@ import java.util.Random;
 
 import org.newdawn.slick.Color;
 
+import lh.koneke.Guts.AtomController;
+import lh.koneke.Guts.Time;
+
 public class Game {
 	public static void main(String[] args) {
 		Game g = new Game();
@@ -42,8 +45,16 @@ public class Game {
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glClearColor(0,0,0,1);
+
+		AtomController.setup();
 		
 		entities = new ArrayList<Entity>();
+
+		Entity player = new Entity();
+		player.setPosition(new Vector2(12*32,14*32+16));
+		player.setSize(new Vector2(32,32));
+		player.setOffset(new Vector2(-16,-16));
+		entities.add(player);
 
 		map = new Block[mapWidth][mapHeight];
 		for(int x = 0; x < mapWidth; x++) {
@@ -70,9 +81,15 @@ public class Game {
 	int mapWidth = 25;
 	int mapHeight = 20;
 
+	AtomController controller;
+
 	Random random = new Random();
 
-	public void update() { }
+	public void update() {
+		Time.update();
+		AtomController.updateAll();
+		AtomController.postUpdateAll();
+	}
 	
 	public void draw() {
 		for(int x = 0; x < mapWidth; x++) {
