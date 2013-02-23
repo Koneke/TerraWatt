@@ -19,10 +19,32 @@ public class Inventory {
 		items = new ArrayList<Item>();
 	}
 
-	public void addItem(Item i) {
-		items.add(i);
+	public void next() {
+		if(items.size() == 0) { selected = 0; return; }
+		selected = (selected + 1) % items.size(); }
+	public void prev() {
+		if(items.size() == 0) { selected = 0; return; }
+		selected = (items.size() + selected - 1) % items.size(); }
+
+	public Item drop() {
+		Item i = items.get(selected);
+		items.remove(i);
+		if(selected > items.size()-1) {
+			selected = items.size()-1;
+		}
+		return i;
+	}
+
+	public boolean empty() {
+		return items.size() > 0 ? false : true;
 	}
 	
+	public void addItem(Item i) {
+		items.add(i);
+		if(items.size() == 1) {
+			selected = 0;
+		}
+	}
 	public void removeItem(Item i) {
 		items.remove(i);
 	}
@@ -46,7 +68,6 @@ public class Inventory {
 
 		float x = gXPadding;
 		float y = gYPadding;
-		//for(Item i : items) {
 		for(int j = 0; j < items.size(); j++) {
 		Item i = items.get(j);
 			if(j == selected) {

@@ -36,6 +36,7 @@ public class Game {
 		Graphics.setDisplay(scrw, scrh);
 		Graphics.setupOpenGL();
 		AtomController.setup();
+		AtomController.getType("Gamepad").get(0).report();
 		
 		entities = new ArrayList<Entity>();
 		ninventory = new Inventory();
@@ -49,16 +50,23 @@ public class Game {
 		entities.add(player);
 
 		Item i = new Item();
-		i.setPosition(new Vector2(10*tilesize,14*tilesize+16));
-		i.setSize(player.getSize().clone());
-		i.setOffset(player.getOffset().clone());
+		i.setPosition(new Vector2(9*tilesize,14*tilesize+16));
+		i.setSize(new Vector2(16,16));
+		i.setOffset(new Vector2(-8,-8));
 		i.setColor(new Color(0f,0f,1f,1f));
 		entities.add(i);
 
 		i = new Item();
-		i.setPosition(new Vector2(10*tilesize-16,14*tilesize+16));
-		i.setSize(player.getSize().clone());
-		i.setOffset(player.getOffset().clone());
+		i.setPosition(new Vector2(8*tilesize,14*tilesize+16));
+		i.setSize(new Vector2(16,16));
+		i.setOffset(new Vector2(-8,-8));
+		i.setColor(new Color(1f,0f,1f,1f));
+		entities.add(i);
+
+		i = new Item();
+		i.setPosition(new Vector2(7*tilesize,14*tilesize+16));
+		i.setSize(new Vector2(16,16));
+		i.setOffset(new Vector2(-8,-8));
 		i.setColor(new Color(1f,0f,1f,1f));
 		entities.add(i);
 
@@ -80,10 +88,8 @@ public class Game {
 
 	public Color randomColor() {
 		Color c = new Color(
-			random.nextFloat(),
-			random.nextFloat(),
-			random.nextFloat(),
-			1);
+			random.nextFloat(), random.nextFloat(),
+			random.nextFloat(), 1);
 		return c;
 	}
 	
@@ -110,13 +116,6 @@ public class Game {
 	public void update() {
 		Time.update();
 		dev_fpstimer += Time.dt;
-		//dev_fpsupdates += 1;
-
-		/*while(dev_fpstimer > 1000) {
-			//System.out.println(dev_fpsupdates);
-			dev_fpstimer-=1000;
-			dev_fpsupdates = 0;
-		}*/
 
 		AtomController.updateAll();
 
@@ -141,24 +140,53 @@ public class Game {
 			if(b == null) {
 				player.getPosition().setx(newpos.x());
 			}
-			//redraw = true;
 		}
 
 		if(gamepad.getValue("A") == 1.0f && gamepad.getLast("A") != 1.0f) {
-			List<Entity> copy = new ArrayList<Entity>(entities);
-			for(Entity e : entities) {
-				if(e != player &&
-					Vector2.distance(e.getPosition(), player.getPosition()) < tilesize) {
-					copy.remove(e);
-					Item i = new Item();
-					i.setSize(player.getSize().clone());
-					i.setOffset(player.getOffset().clone());
-					i.setColor(e.getColor());
-					ninventory.addItem(i);
-					break;
+			if(gamepad.getValue("rz") != 1.0f) {
+				List<Entity> copy = new ArrayList<Entity>(entities);
+				for(Entity e : entities) {
+					if(e != player &&
+						Vector2.distance(
+							e.getPosition(), player.getPosition()) < tilesize) {
+						copy.remove(e);
+						Item i = new Item();
+						i.setSize(e.getSize().clone());
+						i.setOffset(e.getOffset().clone());
+						i.setColor(e.getColor());
+						ninventory.addItem(i);
+						break;
+					}
+				}
+				entities = new ArrayList<Entity>(copy);
+			} else {
+				if(!ninventory.empty()) {
+					Item i = ninventory.drop();
+					i.setPosition(player.getPosition().clone());
+					entities.add(i);
 				}
 			}
-			entities = new ArrayList<Entity>(copy);
+		}
+
+		if(gamepad.getValue("X") == 1.0f && gamepad.getLast("X") != 1.0f) {
+			float angle = gamepad.getValue("pov")*4;
+			if(angle % 1 == 0 && angle > 0) {
+				angle = angle * (float)Math.PI/2f+(float)Math.PI;
+				float ix = player.getPosition().x()+(float)Math.cos(angle)*tilesize;
+				float iy = player.getPosition().y()+(float)Math.sin(angle)*tilesize;
+				Vector2 gridpos = getGridPosition(new Vector2(ix,iy));
+				Block b = world.get((int)gridpos.x(), (int)gridpos.y());
+				if(b != null) {
+					Item i = new Item();
+					i.setSize(new Vector2(16,16)); //TODO: constant this or summing
+					i.setPosition(gridpos.times(tilesize).plus(
+						new Vector2(tilesize/2f, tilesize/2f)));
+					i.setOffset(new Vector2(-8,-8)); //TODO: this one as well
+					i.color = b.getColor();
+					entities.add(i);
+					world.set((int)gridpos.x(), (int)gridpos.y(), null);
+				}
+			}
 		}
 
 		#define pjump -384f
@@ -193,6 +221,14 @@ public class Game {
 		}
 		playerSpeed.sety(playerSpeed.y()+playerAcc.y()*Time.dt/1000f);
 		playerPos.sety(playerPos.y()+playerSpeed.y()*Time.dt/1000f);
+
+		//if(gamepad.getValue("pov") == 0.5f && gamepad.getLast("pov") != 0.5f) {
+		if(gamepad.getValue("z") > 0.5f && gamepad.getLast("z") < 0.5f) {
+			ninventory.prev(); }
+		//if(gamepad.getValue("pov") == 1.0f && gamepad.getLast("pov") != 1.0f) {
+		if(gamepad.getValue("Left Thumb") == 1.0f &&
+			gamepad.getLast("Left Thumb") != 1.0f) {
+			ninventory.next(); }
 
 		AtomController.postUpdateAll();
 
@@ -248,6 +284,25 @@ public class Game {
 				Graphics.point(
 					player.getPosition().x-2, player.getPosition().y+2);
 			Graphics.end();
+
+			
+			AtomController gamepad = 
+				AtomController.getType("Gamepad").get(0);
+			float angle = gamepad.getValue("pov")*4;
+			if(angle % 1 == 0 && angle > 0) {
+				angle = angle * (float)Math.PI/2f+(float)Math.PI;
+				float x = player.getPosition().x()+(float)Math.cos(angle)*tilesize;
+				float y = player.getPosition().y()+(float)Math.sin(angle)*tilesize;
+				x = x - x % tilesize;
+				y = y - y % tilesize;
+				Color.red.bind();
+				Graphics.begin(Graphics.Quads);
+					Graphics.point(x,y);
+					Graphics.point(x+tilesize,y);
+					Graphics.point(x+tilesize,y+tilesize);
+					Graphics.point(x,y+tilesize);
+				Graphics.end();
+			}
 
 			ninventory.draw();
 

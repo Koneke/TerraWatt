@@ -18,6 +18,7 @@ public class World {
 		map[x][y] = b;
 	}
 	public Block get(int x, int y) {
+		if(x >= worldWidth || x < 0 || y >= worldHeight || y < 0) { return null; }
 		return map[x][y];
 	}
 }
