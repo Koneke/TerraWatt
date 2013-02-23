@@ -1,3 +1,5 @@
+![Early screenshot](http://i.imgur.com/WZOAuXo.png "Early screenshot")
+
 TerraWatt is/will be a sidescrolling, 2D platformer game in an open world, similar to Terraria. A lot of ideas have been drawn from mod packs for Minecraft, the ones allowing all kinds of crazy machines, as I'm very interested in being able to build your own contraptions and stuff in games.
 
 Currently requires a specific folder structure (although you could change this up if you want to, this is just the way it looks for me).
