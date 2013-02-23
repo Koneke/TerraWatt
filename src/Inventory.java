@@ -36,10 +36,10 @@ public class Inventory {
 
 		Color.white.bind();
 		Graphics.begin(Graphics.Quads);
-			Graphics.vector2f(x1, y1);
-			Graphics.vector2f(x2, y1);
-			Graphics.vector2f(x2, y2);
-			Graphics.vector2f(x1, y2);
+			Graphics.point(x1, y1);
+			Graphics.point(x2, y1);
+			Graphics.point(x2, y2);
+			Graphics.point(x1, y2);
 		Graphics.end();
 
 		float x = gXPadding;

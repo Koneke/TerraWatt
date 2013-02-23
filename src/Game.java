@@ -40,8 +40,8 @@ public class Game {
 		AtomController.setup();
 		
 		entities = new ArrayList<Entity>();
-		//inventory = new ArrayList<Item>();
 		ninventory = new Inventory();
+		world = new World(25, 20);
 
 		Entity player = new Entity();
 		player.setPosition(new Vector2(12*tilesize,14*tilesize+16));
@@ -64,33 +64,41 @@ public class Game {
 		i.setColor(new Color(1f,0f,1f,1f));
 		entities.add(i);
 
-		map = new Block[mapWidth][mapHeight];
-		for(int x = 0; x < mapWidth; x++) {
-			for(int y = 0; y < mapHeight; y++) {
+		//map = new Block[mapWidth][mapHeight];
+		for(int x = 0; x < world.getWidth(); x++) {
+			for(int y = 0; y < world.getHeight(); y++) {
 				if(y < 15) {
-					map[x][y] = null;
+					//map[x][y] = null;
+					world.set(x,y,null);
 				} else {
-					map[x][y] = new Block();
-					map[x][y].setColor(new Color(
-						random.nextFloat(),
-						random.nextFloat(),
-						random.nextFloat(),
-						1));
+					Block b = new Block();
+					b.setColor(randomColor());
+					//map[x][y] = b;
+					world.set(x,y,b);
 				}
 			}
 		}
 	}
 
 	public void quit() { }
+
+	public Color randomColor() {
+		Color c = new Color(
+			random.nextFloat(),
+			random.nextFloat(),
+			random.nextFloat(),
+			1);
+		return c;
+	}
 	
 	List<Entity> entities;
-	Block[][] map;
+	//Block[][] map;
+	World world;
 
 	final int mapWidth = 25;
 	final int mapHeight = 20;
 
 	AtomController controller;
-	//List<Item> inventory;
 	Inventory ninventory;
 
 	Random random = new Random();
@@ -108,8 +116,8 @@ public class Game {
 		dev_fpsupdates += 1;
 
 		while(dev_fpstimer > 1000) {
+			//System.out.println(dev_fpsupdates);
 			dev_fpstimer-=1000;
-			System.out.println(dev_fpsupdates);
 			dev_fpsupdates = 0;
 		}
 
@@ -159,50 +167,29 @@ public class Game {
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 			for(int x = 0; x < mapWidth; x++) {
 				for(int y = 0; y < mapHeight; y++) {
-					if(map[x][y] != null) {
-						Color c = map[x][y].getColor();
-						c.bind();
-						GL11.glBegin(GL11.GL_QUADS);
-							GL11.glVertex2f( 1+ x*tilesize, 	 1+ y*tilesize);
-							GL11.glVertex2f(-1+(x+1)*tilesize,	 1+ y*tilesize);
-							GL11.glVertex2f(-1+(x+1)*tilesize,	-1+(y+1)*tilesize);
-							GL11.glVertex2f( 1+ x*tilesize,		-1+(y+1)*tilesize);
-						GL11.glEnd();
+					//if(map[x][y] != null) {
+					if(world.get(x,y) != null) {
+						//Color c = map[x][y].getColor();
+						//c.bind();
+						world.get(x,y).getColor().bind();
+						float x1 = 1+x*tilesize;
+						float x2 = -1+(x+1)*tilesize;
+						float y1 = 1+y*tilesize;
+						float y2 = -1+(y+1)*tilesize;
+						Graphics.begin(Graphics.Quads);
+							Graphics.point(x1, y1);
+							Graphics.point(x2, y1);
+							Graphics.point(x2, y2);
+							Graphics.point(x1, y2);
+						Graphics.end();
 					}
 				}
 			}
 			for(Entity e : entities) {
 				e.draw(e.getPosition());
 			}
-			//Hud below
-			int margin = 2;
-			int xpadding = 4;
-			int ypadding = 2;
-
-			/*int x1 = 0;
-			int x2 = 2*xpadding+inventoryTileSize*inventory.size()+
-				(inventory.size()-1)*margin;
-			int y1 = 0;
-			int y2 = 2*ypadding+inventoryTileSize;*/
-			
-			/*Color.white.bind();
-			Graphics.begin(Graphics.Quads);
-				Graphics.vector2f(x1, y1);
-				Graphics.vector2f(x2, y1);
-				Graphics.vector2f(x2, y2);
-				Graphics.vector2f(x1, y2);
-			Graphics.end();*/
 
 			ninventory.draw();
-
-			/*int x = xpadding;
-			int y = ypadding;
-			for(Item i : inventory) {
-				i.draw(new Vector2(x, y),
-					new Vector2(inventoryTileSize, inventoryTileSize),
-					new Vector2(0,0));
-				x+=inventoryTileSize+margin;
-			}*/
 
 			//redraw done
 			redraw = false;

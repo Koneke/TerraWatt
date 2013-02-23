@@ -43,9 +43,9 @@ public class Graphics {
 		GL11.glEnd();
 	}
 
-	public static void vector2f(float x, float y) {
-		vector2f(x,y,0,0); }
-	public static void vector2f(float x, float y, float tx, float ty) {
+	public static void point(float x, float y) {
+		point(x,y,0,0); }
+	public static void point(float x, float y, float tx, float ty) {
 		GL11.glTexCoord2f(tx, ty);
 		GL11.glVertex2f(x, y);
 	}
