@@ -7,4 +7,8 @@ public class Block {
 
 	public Color getColor() { return this.color; }
 	public void setColor(Color c) { this.color = c; }
+
+	public Block() {}
+	public Block(Color c) {
+		this.color = c; }
 }

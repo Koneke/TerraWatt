@@ -16,7 +16,7 @@ import lh.koneke.Guts.Time;
 
 #define scrw 800
 #define scrh 640
-#define tilesize 32
+//#define tilesize 32
 #define inventoryTileSize 16
 
 public class Game {
@@ -64,20 +64,18 @@ public class Game {
 		i.setColor(new Color(1f,0f,1f,1f));
 		entities.add(i);
 
-		//map = new Block[mapWidth][mapHeight];
 		for(int x = 0; x < world.getWidth(); x++) {
 			for(int y = 0; y < world.getHeight(); y++) {
 				if(y < 15) {
-					//map[x][y] = null;
 					world.set(x,y,null);
 				} else {
 					Block b = new Block();
 					b.setColor(randomColor());
-					//map[x][y] = b;
 					world.set(x,y,b);
 				}
 			}
 		}
+		world.set(10,14,new Block(randomColor()));
 	}
 
 	public void quit() { }
@@ -92,11 +90,11 @@ public class Game {
 	}
 	
 	List<Entity> entities;
-	//Block[][] map;
 	World world;
 
 	final int mapWidth = 25;
 	final int mapHeight = 20;
+	final int tilesize = 32;
 
 	AtomController controller;
 	Inventory ninventory;
@@ -106,6 +104,7 @@ public class Game {
 
 	Vector2 playerSpeed = new Vector2(0,0);
 	Vector2 playerAcc = new Vector2(0,0);
+	boolean canjump = true;
 
 	int dev_fpstimer;
 	int dev_fpsupdates;
@@ -113,13 +112,13 @@ public class Game {
 	public void update() {
 		Time.update();
 		dev_fpstimer += Time.dt;
-		dev_fpsupdates += 1;
+		//dev_fpsupdates += 1;
 
-		while(dev_fpstimer > 1000) {
+		/*while(dev_fpstimer > 1000) {
 			//System.out.println(dev_fpsupdates);
 			dev_fpstimer-=1000;
 			dev_fpsupdates = 0;
-		}
+		}*/
 
 		AtomController.updateAll();
 
@@ -128,14 +127,25 @@ public class Game {
 		float x = gamepad.getValue("x");
 		x = (float)Math.floor(x * 10f)/10f;
 
+		Entity player = entities.get(0);
+		Vector2 playerPos = player.getPosition();
 		if(Math.abs(x) > 0.3) {
-			Entity player = entities.get(0);
-			Vector2 playerPos = player.getPosition();
-			playerPos.setx(playerPos.x()+0.1f*Time.dt*x);
-			redraw = true;
+			Vector2 newpos = playerPos.plus(
+				new Vector2(
+				0.25f*Time.dt*x
+				,0));
+			Vector2 gridpos = getGridPosition(
+				newpos.plus(new Vector2(
+					player.getSize().times
+						(x > 0 ? 0.5f : -0.5f).x(),0)
+				));
+			Block b = world.get((int)gridpos.x(), (int)gridpos.y());
+			if(b == null) {
+				player.getPosition().setx(newpos.x());
+			}
+			//redraw = true;
 		}
 
-		Entity player = entities.get(0);
 		if(gamepad.getValue("A") == 1.0f && gamepad.getLast("A") != 1.0f) {
 			List<Entity> copy = new ArrayList<Entity>(entities);
 			for(Entity e : entities) {
@@ -147,18 +157,61 @@ public class Game {
 					i.setOffset(player.getOffset().clone());
 					i.setColor(e.getColor());
 					ninventory.addItem(i);
-					redraw = true;
 					break;
 				}
 			}
 			entities = new ArrayList<Entity>(copy);
 		}
 
-		if(gamepad.getValue("X") == 1.0f && gamepad.getLast("X") != 1.0f) {
-			//jump
+		#define pjump -384f
+		#define gravity 14000f
+		if(gamepad.getValue("B") == 1.0f && gamepad.getLast("B") != 1.0f && canjump) {
+			playerSpeed = new Vector2(0, pjump);
+			canjump = false; }
+		Vector2 gridPositionBeneathA = getGridPosition(
+			player.getPosition().
+				plus(player.getOffset().plus(new Vector2(32,0)).plus(player.getSize())));
+		Vector2 gridPositionBeneathB = getGridPosition(
+			player.getPosition().
+				plus(player.getOffset().plus(new Vector2(0,0)).plus(player.getSize())));
+		Vector2 gridBenA = getGridPosition(
+			player.getPosition().plus(new Vector2(-12,16)));
+		Vector2 gridBenB = getGridPosition(
+			player.getPosition().plus(new Vector2(12,16)));
+		Block beneath1 = world.get(
+			(int)gridBenA.x(), (int)gridBenA.y());
+		Block beneath2 = world.get(
+			(int)gridBenB.x(), (int)gridBenB.y());
+		if(beneath1 == null && beneath2 == null) {
+			//playerAcc.sety(playerAcc.y()+2000f*Time.dt/1000f);
+			playerAcc.sety(playerAcc.y()+gravity*Time.dt/1000f);
+		} else if (playerAcc.y() > 0)  {
+			playerAcc.sety(0);
+			playerSpeed.sety(0);
+			player.getPosition().sety(
+				gridPositionBeneathA.plus(new Vector2(0,-1)).times(tilesize)
+				.plus(player.getOffset().plus(player.getSize())).y());
+			canjump = true;
 		}
+		playerSpeed.sety(playerSpeed.y()+playerAcc.y()*Time.dt/1000f);
+		playerPos.sety(playerPos.y()+playerSpeed.y()*Time.dt/1000f);
 
 		AtomController.postUpdateAll();
+
+		if(dev_fpstimer > 1000f/60f) {
+			dev_fpstimer = 0;
+			redraw = true;
+		}
+	}
+
+	public Vector2 getGridPosition(Vector2 screenPosition) {
+		float x = screenPosition.x();
+		x -= x % tilesize;
+		x = x/tilesize;
+		float y = screenPosition.y();
+		y -= y % tilesize;
+		y = y/tilesize;
+		return new Vector2(x,y);
 	}
 	
 	public void draw() {
@@ -167,10 +220,7 @@ public class Game {
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 			for(int x = 0; x < mapWidth; x++) {
 				for(int y = 0; y < mapHeight; y++) {
-					//if(map[x][y] != null) {
 					if(world.get(x,y) != null) {
-						//Color c = map[x][y].getColor();
-						//c.bind();
 						world.get(x,y).getColor().bind();
 						float x1 = 1+x*tilesize;
 						float x2 = -1+(x+1)*tilesize;
@@ -188,6 +238,22 @@ public class Game {
 			for(Entity e : entities) {
 				e.draw(e.getPosition());
 			}
+			Entity player = entities.get(0);
+			Color.white.bind();
+			Graphics.begin(Graphics.Quads);
+				Graphics.point(
+					player.getPosition().x-2,
+					player.getPosition().y-2);
+				Graphics.point(
+					player.getPosition().x+2,
+					player.getPosition().y-2);
+				Graphics.point(
+					player.getPosition().x+2,
+					player.getPosition().y+2);
+				Graphics.point(
+					player.getPosition().x-2,
+					player.getPosition().y+2);
+			Graphics.end();
 
 			ninventory.draw();
 

@@ -11,6 +11,12 @@ public class Vector2 {
 	public float y() { return y; }
 	public void setx(float x) { this.x = x; }
 	public void sety(float y) { this.y = y; }
+	
+	public Vector2 plus(Vector2 b) {
+		return new Vector2(x+b.x(),y+b.y()); }
+	public Vector2 times(float scalar) {
+		return new Vector2(x*scalar, y*scalar);
+	}
 
 	static float distance(Vector2 a, Vector2 b) {
 		float dx = Math.abs(a.x()-b.x());

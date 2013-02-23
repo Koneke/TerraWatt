@@ -6,7 +6,7 @@ import org.newdawn.slick.Color;
 public class Entity {
 	Vector2 position;
 	public Vector2 getPosition() { return this.position; }
-	public void setPosition(Vector2 v) { this.position = v.clone(); }
+	public void setPosition(Vector2 v) { this.position = v; }
 
 	Vector2 size;
 	public Vector2 getSize() { return this.size; }
@@ -31,20 +31,18 @@ public class Entity {
 	public void draw(Vector2 position, Vector2 size, Vector2 offset
 	/*in the future, pass drawer of some kind instead*/) {
 		color.bind();
-		GL11.glBegin(GL11.GL_QUADS);
-			GL11.glVertex2f(
-				position.x()+offset.x(),
-				position.y()+offset.y());
-			GL11.glVertex2f(
-				position.x()+offset.x()+size.x(),
-				position.y()+offset.y());
-			GL11.glVertex2f(
-				position.x()+offset.x()+size.x(),
-				position.y()+offset.y()+size.y());
-			GL11.glVertex2f(
-				position.x()+offset.x(),
-				position.y()+offset.y()+size.y());
-		GL11.glEnd();
+
+		float x1 = position.x()+offset.x();
+		float x2 = position.x()+offset.x()+size.x();
+		float y1 = position.y()+offset.y();
+		float y2 = position.y()+offset.y()+size.y();
+
+		Graphics.begin(Graphics.Quads);
+			Graphics.point(x1,y1);
+			Graphics.point(x2,y1);
+			Graphics.point(x2,y2);
+			Graphics.point(x1,y2);
+		Graphics.end();
 	}
 
 	public Entity clone() {

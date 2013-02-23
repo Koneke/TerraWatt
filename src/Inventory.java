@@ -11,7 +11,7 @@ public class Inventory {
 	final int gMargin = 2;
 	final int gXPadding = 4;
 	final int gYPadding = 2;
-	final int gTileSize = 32;
+	final int gTileSize = 16;
 	
 	public Inventory() {
 		items = new ArrayList<Item>();
