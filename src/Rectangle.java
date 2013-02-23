@@ -25,10 +25,22 @@ public class Rectangle {
 	public void setw(float w) { this.w = w; }
 	public void seth(float h) { this.h = h; }
 
-	public void settl(Vector2 tl) { x = tl.x(); y = tl.y(); }
-	public void settr(Vector2 tr) { x = tr.x()-w; y = tr.y(); }
-	public void setbl(Vector2 bl) { x = bl.x(); y = bl.y()-h; }
-	public void setbr(Vector2 br) { x = br.x()-w; y = br.y()-h; }
+	public void settl(Vector2 tl) {
+		x = tl.x();
+		y = tl.y();
+	}
+	public void settr(Vector2 tr) {
+		x = tr.x()-w;
+		y = tr.y();
+	}
+	public void setbl(Vector2 bl) {
+		x = bl.x();
+		y = bl.y()-h;
+	}
+	public void setbr(Vector2 br) {
+		x = br.x()-w;
+		y = br.y()-h;
+	}
 
 	public Rectangle clone() { return new Rectangle(x,y,w,h); }
 
