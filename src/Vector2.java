@@ -9,4 +9,14 @@ public class Vector2 {
 
 	public float x() { return x; }
 	public float y() { return y; }
+	public void setx(float x) { this.x = x; }
+	public void sety(float y) { this.y = y; }
+
+	static float distance(Vector2 a, Vector2 b) {
+		float dx = Math.abs(a.x()-b.x());
+		float dy = Math.abs(a.y()-b.y());
+		float d = (float)(Math.pow(dx,2)+Math.pow(dy,2));
+		d = (float)Math.sqrt(d);
+		return d;
+	}
 }

@@ -19,9 +19,18 @@ public class Entity {
 	int depth;
 	public int getDepth() { return this.depth; }
 	public void setDepth(int i) { this.depth = i; }
+
+	//drawable graphic
+	Color color;
+	public Color getColor() { return this.color; }
+	public void setColor(Color c) { this.color = c; }
 	
-	public void draw(/*in the future, pass drawer of some kind instead*/) {
-		Color.red.bind();
+	public void draw(Vector2 position) {
+		draw(position, getSize(), getOffset());
+	}
+	public void draw(Vector2 position, Vector2 size, Vector2 offset
+	/*in the future, pass drawer of some kind instead*/) {
+		color.bind();
 		GL11.glBegin(GL11.GL_QUADS);
 			GL11.glVertex2f(
 				position.x()+offset.x(),
@@ -36,5 +45,15 @@ public class Entity {
 				position.x()+offset.x(),
 				position.y()+offset.y()+size.y());
 		GL11.glEnd();
+	}
+
+	public Entity clone() {
+		Entity e = new Entity();
+		e.setPosition(getPosition());
+		e.setSize(getSize());
+		e.setOffset(getOffset());
+		e.setDepth(getDepth());
+		e.setColor(getColor());
+		return e;
 	}
 }
