@@ -1,0 +1,1 @@
+ls -1 src | xargs -I {} wc -l src/{} | cut -d\  -f 1 | tr '\n' '+' | sed 's/\+$/\n/g' | bc

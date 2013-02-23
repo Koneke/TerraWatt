@@ -13,6 +13,8 @@ public class Inventory {
 	final int gYPadding = 2;
 	final int gTileSize = 16;
 	
+	int selected = 0;
+	
 	public Inventory() {
 		items = new ArrayList<Item>();
 	}
@@ -34,7 +36,7 @@ public class Inventory {
 		float y2 =
 			2*gYPadding+gTileSize;
 
-		Color.white.bind();
+		Color.black.bind();
 		Graphics.begin(Graphics.Quads);
 			Graphics.point(x1, y1);
 			Graphics.point(x2, y1);
@@ -44,7 +46,16 @@ public class Inventory {
 
 		float x = gXPadding;
 		float y = gYPadding;
-		for(Item i : items) {
+		//for(Item i : items) {
+		for(int j = 0; j < items.size(); j++) {
+		Item i = items.get(j);
+			if(j == selected) {
+				i.draw(
+					new Vector2(x-1, y-1),
+					new Vector2(gTileSize+2, gTileSize+2),
+					new Vector2(0,0),
+					Color.yellow);
+			}
 			i.draw(
 				new Vector2(x, y),
 				new Vector2(gTileSize, gTileSize),

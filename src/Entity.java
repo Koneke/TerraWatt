@@ -26,9 +26,21 @@ public class Entity {
 	public void setColor(Color c) { this.color = c; }
 	
 	public void draw(Vector2 position) {
-		draw(position, getSize(), getOffset());
-	}
-	public void draw(Vector2 position, Vector2 size, Vector2 offset
+		draw(position, getSize(), getOffset(), getColor()); }
+	public void draw(
+		Vector2 position,
+		Vector2 size) {
+		draw(position, size, getOffset(), getColor()); }
+	public void draw(
+		Vector2 position,
+		Vector2 size,
+		Vector2 offset) {
+		draw(position, size, offset, getColor()); }
+	public void draw(
+		Vector2 position,
+		Vector2 size,
+		Vector2 offset,
+		Color color
 	/*in the future, pass drawer of some kind instead*/) {
 		color.bind();
 

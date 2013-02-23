@@ -16,8 +16,6 @@ import lh.koneke.Guts.Time;
 
 #define scrw 800
 #define scrh 640
-//#define tilesize 32
-#define inventoryTileSize 16
 
 public class Game {
 	public static void main(String[] args) {
@@ -242,22 +240,17 @@ public class Game {
 			Color.white.bind();
 			Graphics.begin(Graphics.Quads);
 				Graphics.point(
-					player.getPosition().x-2,
-					player.getPosition().y-2);
+					player.getPosition().x-2, player.getPosition().y-2);
 				Graphics.point(
-					player.getPosition().x+2,
-					player.getPosition().y-2);
+					player.getPosition().x+2, player.getPosition().y-2);
 				Graphics.point(
-					player.getPosition().x+2,
-					player.getPosition().y+2);
+					player.getPosition().x+2, player.getPosition().y+2);
 				Graphics.point(
-					player.getPosition().x-2,
-					player.getPosition().y+2);
+					player.getPosition().x-2, player.getPosition().y+2);
 			Graphics.end();
 
 			ninventory.draw();
 
-			//redraw done
 			redraw = false;
 		}
 		Display.update();
