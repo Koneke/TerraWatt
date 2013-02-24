@@ -51,22 +51,16 @@ public class Game {
 
 		Item i = new Item();
 		i.setPosition(new Vector2(9*tilesize,14*tilesize+16));
-		i.setSize(new Vector2(16,16));
-		i.setOffset(new Vector2(-8,-8));
 		i.setColor(new Color(0f,0f,1f,1f));
 		entities.add(i);
 
 		i = new Item();
 		i.setPosition(new Vector2(8*tilesize,14*tilesize+16));
-		i.setSize(new Vector2(16,16));
-		i.setOffset(new Vector2(-8,-8));
 		i.setColor(new Color(1f,0f,1f,1f));
 		entities.add(i);
 
 		i = new Item();
 		i.setPosition(new Vector2(7*tilesize,14*tilesize+16));
-		i.setSize(new Vector2(16,16));
-		i.setOffset(new Vector2(-8,-8));
 		i.setColor(new Color(1f,0f,1f,1f));
 		entities.add(i);
 
@@ -111,6 +105,8 @@ public class Game {
 	Vector2 playerSpeed = new Vector2(0,0);
 	Vector2 playerAcc = new Vector2(0,0);
 	boolean canjump = true;
+	final float pjump = -384f;
+	final float gravity = 14000f;
 
 	int dev_fpstimer;
 	int dev_fpsupdates;
@@ -178,13 +174,12 @@ public class Game {
 				float iy = player.getPosition().y()+(float)Math.sin(angle)*tilesize;
 				Vector2 gridpos = getGridPosition(new Vector2(ix,iy));
 				Block b = world.get((int)gridpos.x(), (int)gridpos.y());
-				if(gamepad.getValue("rz") == 1.0f) {
+				//if(gamepad.getValue("rz") == 1.0f) {//mod-button version
+				if(b != null) { //"break if block under, place otherwise" version
 					if(b != null) {
 						Item i = new Item();
-						i.setSize(new Vector2(16,16)); //TODO: constant this or summing
 						i.setPosition(gridpos.times(tilesize).plus(
 							new Vector2(tilesize/2f, tilesize/2f)));
-						i.setOffset(new Vector2(-8,-8)); //TODO: this one as well
 						i.color = b.getColor();
 						entities.add(i);
 						world.set((int)gridpos.x(), (int)gridpos.y(), null);
@@ -201,8 +196,6 @@ public class Game {
 			}
 		}
 
-		#define pjump -384f
-		#define gravity 14000f
 		if(gamepad.getValue("B") == 1.0f && gamepad.getLast("B") != 1.0f && canjump) {
 			playerSpeed = new Vector2(0, pjump);
 			canjump = false; }
@@ -221,7 +214,6 @@ public class Game {
 		Block beneath2 = world.get(
 			(int)gridBenB.x(), (int)gridBenB.y());
 		if(beneath1 == null && beneath2 == null) {
-			//playerAcc.sety(playerAcc.y()+2000f*Time.dt/1000f);
 			playerAcc.sety(playerAcc.y()+gravity*Time.dt/1000f);
 		} else if (playerAcc.y() > 0)  {
 			playerAcc.sety(0);
