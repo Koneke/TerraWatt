@@ -191,9 +191,11 @@ public class Game {
 					}
 				} else {
 					if(b == null) {
-						Item i = ninventory.drop();
-						b = new Block(i.getColor());
-						world.set((int)gridpos.x(), (int)gridpos.y(), b);
+						if(!ninventory.empty()) {
+	 						Item i = ninventory.drop();
+							b = new Block(i.getColor());
+							world.set((int)gridpos.x(), (int)gridpos.y(), b);
+						}
 					}
 				}
 			}
