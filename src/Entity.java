@@ -45,8 +45,8 @@ public class Entity {
 		color.bind();
 
 		float x1 = position.x()+offset.x();
-		float x2 = position.x()+offset.x()+size.x();
 		float y1 = position.y()+offset.y();
+		float x2 = position.x()+offset.x()+size.x();
 		float y2 = position.y()+offset.y()+size.y();
 
 		Graphics.begin(Graphics.Quads);

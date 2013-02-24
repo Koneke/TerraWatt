@@ -88,8 +88,10 @@ public class Game {
 
 	public Color randomColor() {
 		Color c = new Color(
-			random.nextFloat(), random.nextFloat(),
-			random.nextFloat(), 1);
+			random.nextFloat(),
+			random.nextFloat(),
+			random.nextFloat(),
+			1);
 		return c;
 	}
 	
@@ -131,8 +133,8 @@ public class Game {
 				new Vector2(
 				0.25f*Time.dt*x
 				,0));
-			Vector2 gridpos = getGridPosition(
-				newpos.plus(new Vector2(
+			Vector2 gridpos =
+				getGridPosition(newpos.plus(new Vector2(
 					player.getSize().times
 						(x > 0 ? 0.5f : -0.5f).x(),0)
 				));
@@ -176,15 +178,23 @@ public class Game {
 				float iy = player.getPosition().y()+(float)Math.sin(angle)*tilesize;
 				Vector2 gridpos = getGridPosition(new Vector2(ix,iy));
 				Block b = world.get((int)gridpos.x(), (int)gridpos.y());
-				if(b != null) {
-					Item i = new Item();
-					i.setSize(new Vector2(16,16)); //TODO: constant this or summing
-					i.setPosition(gridpos.times(tilesize).plus(
-						new Vector2(tilesize/2f, tilesize/2f)));
-					i.setOffset(new Vector2(-8,-8)); //TODO: this one as well
-					i.color = b.getColor();
-					entities.add(i);
-					world.set((int)gridpos.x(), (int)gridpos.y(), null);
+				if(gamepad.getValue("rz") == 1.0f) {
+					if(b != null) {
+						Item i = new Item();
+						i.setSize(new Vector2(16,16)); //TODO: constant this or summing
+						i.setPosition(gridpos.times(tilesize).plus(
+							new Vector2(tilesize/2f, tilesize/2f)));
+						i.setOffset(new Vector2(-8,-8)); //TODO: this one as well
+						i.color = b.getColor();
+						entities.add(i);
+						world.set((int)gridpos.x(), (int)gridpos.y(), null);
+					}
+				} else {
+					if(b == null) {
+						Item i = ninventory.drop();
+						b = new Block(i.getColor());
+						world.set((int)gridpos.x(), (int)gridpos.y(), b);
+					}
 				}
 			}
 		}
